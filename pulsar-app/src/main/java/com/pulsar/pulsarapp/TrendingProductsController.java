@@ -1,4 +1,4 @@
-package com.pulsar.pulsarapi;
+package main.java.com.pulsar.pulsarapi;
 
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;

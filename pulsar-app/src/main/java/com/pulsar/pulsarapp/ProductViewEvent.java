@@ -1,4 +1,4 @@
-package com.pulsar.eventgenerator;
+package main.java.com.pulsar.eventgenerator;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

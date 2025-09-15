@@ -1,4 +1,4 @@
-package com.pulsar.pulsarapi;
+package main.java.com.pulsar.pulsarapi;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

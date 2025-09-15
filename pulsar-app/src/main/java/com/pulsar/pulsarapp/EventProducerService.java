@@ -1,4 +1,4 @@
-package com.pulsar.eventgenerator;
+package main.java.com.pulsar.eventgenerator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
