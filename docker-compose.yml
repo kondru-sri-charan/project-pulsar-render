@@ -1,40 +1,32 @@
 version: '3.8'
 
 services:
-  # This service runs the official Google Cloud SDK image and starts the emulators
   gcp-emulators:
     image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
     container_name: gcp-emulators
     ports:
-      - "8085:8085" # Pub/Sub Emulator port
-      - "8086:8086" # Firestore Emulator port
+      - "8085:8085" # Pub/Sub
+      - "8086:8086" # Firestore
     command: >
       /bin/sh -c "
+        gcloud beta emulators firestore start --host-port=0.0.0.0:8086 --project=local-project &
         gcloud beta emulators pubsub start --host-port=0.0.0.0:8085 --project=local-project &
-        gcloud beta emulators firestore start --host-port=0.0.0.0:8086 --project=local-project
+        sleep 10 &&
+        echo 'Creating Pub/Sub Topic and Subscription...' &&
+        export PUBSUB_EMULATOR_HOST=localhost:8085 &&
+        gcloud pubsub topics create product-view-topic &&
+        gcloud pubsub subscriptions create product-view-subscription --topic=product-view-topic &&
+        tail -f /dev/null
       "
 
-  # The event-generator service, built from its Dockerfile
-  event-generator:
-    build: ./event-generator
-    container_name: event-generator
-    depends_on:
-      - gcp-emulators # Ensures emulators start first
-    environment:
-      # This environment variable tells our Java code where to find the emulator.
-      # 'gcp-emulators' is the service name, which acts as a hostname inside the Docker network.
-      - PUBSUB_EMULATOR_HOST=gcp-emulators:8085
-      - GCP_PROJECT_ID=local-project # Dummy project ID for the emulator
-
-  # The pulsar-api service, built from its Dockerfile
-  pulsar-api:
-    build: ./pulsar-api
-    container_name: pulsar-api
+  pulsar-app:
+    build: ./pulsar-app
+    container_name: pulsar-app
     ports:
-      - "8081:8080" # Map container's port 8080 to host's port 8081
+      - "8081:8080"
     depends_on:
-      - gcp-emulators # Ensures emulators start first
+      - gcp-emulators
     environment:
-      # This environment variable tells our Java code where to find the Firestore emulator.
+      - PUBSUB_EMULATOR_HOST=gcp-emulators:8085
       - FIRESTORE_EMULATOR_HOST=gcp-emulators:8086
-      - GCP_PROJECT_ID=local-project # Dummy project ID for the emulator
+      - GCP_PROJECT_ID=local-project

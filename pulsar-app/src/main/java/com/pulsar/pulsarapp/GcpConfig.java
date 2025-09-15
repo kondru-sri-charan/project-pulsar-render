@@ -1,5 +1,6 @@
-package com.pulsar.eventgenerator;
-
+package main.java.com.pulsar.pulsarapp;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.FirestoreOptions;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.GrpcTransportChannel;
@@ -44,5 +45,19 @@ public class GcpConfig {
         // (from your GOOGLE_APPLICATION_CREDENTIALS) to connect to the real GCP Pub/Sub.
         
         return publisherBuilder.build();
+    }
+
+
+    @Bean
+    public Firestore firestore() {
+        String firestoreEmulatorHost = System.getenv("FIRESTORE_EMULATOR_HOST");
+        FirestoreOptions.Builder optionsBuilder = FirestoreOptions.newBuilder();
+
+        if (firestoreEmulatorHost != null) {
+            optionsBuilder.setEmulatorHost(firestoreEmulatorHost)
+                          .setCredentialsProvider(NoCredentialsProvider.create())
+                          .setProjectId("local-project");
+        }
+        return optionsBuilder.build().getService();
     }
 }
