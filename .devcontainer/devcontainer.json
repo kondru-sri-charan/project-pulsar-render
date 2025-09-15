@@ -1,21 +1,24 @@
 {
     "name": "Project Pulsar Environment",
-    // Use a pre-built Microsoft image that includes Docker, Java, and Maven.
-    "image": "mcr.microsoft.com/devcontainers/java:0-17-bullseye",
-    
-    // This is the key part. This command runs AFTER the container starts.
+
+    // This is the key change. We are using a universal image that
+    // comes pre-loaded with Docker, Java, Maven, Node, Python, etc.
+    "image": "mcr.microsoft.com/devcontainers/universal:2",
+
+    // This command runs AFTER the container starts.
     // It will automatically start your entire application stack.
+    // The '-d' runs it in detached mode.
     "postCreateCommand": "docker-compose up --build -d",
 
     // Forward the API port so you can access it from your local browser.
     "forwardPorts": [8081],
 
-    // Add features to the container.
+    // We still need to enable the Docker-in-Docker feature for docker-compose to work.
     "features": {
-        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-        "ghcr.io/devcontainers/features/java:1": {
-            "version": "17"
-        },
-        "ghcr.io/devcontainers/features/maven:1": {}
-    }
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+    },
+
+    // Ensure the container runs as a privileged user to manage Docker.
+    "runArgs": ["--init"],
+    "overrideCommand": false
 }
