@@ -4,15 +4,12 @@ services:
   gcp-emulators:
     image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
     container_name: gcp-emulators
-    ports:
-      - "8085:8085" # Pub/Sub
-      - "8086:8086" # Firestore
+    # No ports needed here, as services will communicate over the internal Docker network.
     command: >
       /bin/sh -c "
         gcloud beta emulators firestore start --host-port=0.0.0.0:8086 --project=local-project &
         gcloud beta emulators pubsub start --host-port=0.0.0.0:8085 --project=local-project &
         sleep 10 &&
-        echo 'Creating Pub/Sub Topic and Subscription...' &&
         export PUBSUB_EMULATOR_HOST=localhost:8085 &&
         gcloud pubsub topics create product-view-topic &&
         gcloud pubsub subscriptions create product-view-subscription --topic=product-view-topic &&
@@ -23,7 +20,7 @@ services:
     build: ./pulsar-app
     container_name: pulsar-app
     ports:
-      - "8081:8080"
+      - "8081:8080" # This is important for the port forwarding to work.
     depends_on:
       - gcp-emulators
     environment:
