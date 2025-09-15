@@ -1,0 +1,18 @@
+# Use the official Google Cloud SDK image
+FROM gcr.io/google.com/cloudsdktool/cloud-sdk:latest
+
+# Set a working directory
+WORKDIR /app
+
+# The command to start the emulators and create the Pub/Sub topic/subscription
+# This is the same command from the old docker-compose.yml
+CMD /bin/sh -c " \
+    gcloud beta emulators firestore start --host-port=0.0.0.0:8086 --project=local-project & \
+    gcloud beta emulators pubsub start --host-port=0.0.0.0:8085 --project=local-project & \
+    sleep 10 && \
+    echo 'Creating Pub/Sub Topic and Subscription...' && \
+    export PUBSUB_EMULATOR_HOST=localhost:8085 && \
+    gcloud pubsub topics create product-view-topic && \
+    gcloud pubsub subscriptions create product-view-subscription --topic=product-view-topic && \
+    tail -f /dev/null \
+"

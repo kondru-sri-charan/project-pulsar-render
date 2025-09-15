@@ -1,0 +1,23 @@
+# This file tells Render how to build and deploy your services.
+# It's the modern replacement for Docker Compose on the Render platform.
+services:
+  # Service 1: The GCP Emulators (runs as a background worker)
+  - name: gcp-emulators
+    type: worker # This is a background service, not exposed to the internet
+    dockerfilePath: ./Dockerfile.emulators # We will create this Dockerfile next
+    dockerContext: .
+    
+  # Service 2: The main Spring Boot application (runs as a web service)
+  - name: pulsar-app
+    type: web # This service gets a public URL
+    dockerfilePath: ./pulsar-app/Dockerfile
+    dockerContext: ./pulsar-app
+    envVars:
+      # Render automatically creates internal network hostnames for services.
+      # Here, we tell our app where to find the emulator service.
+      - key: PUBSUB_EMULATOR_HOST
+        value: gcp-emulators:8085
+      - key: FIRESTORE_EMULATOR_HOST
+        value: gcp-emulators:8086
+      - key: GCP_PROJECT_ID
+        value: local-project
