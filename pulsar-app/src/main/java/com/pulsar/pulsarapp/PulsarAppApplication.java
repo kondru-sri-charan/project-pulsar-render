@@ -1,4 +1,4 @@
-package main.java.com.pulsar.pulsarapp;
+package com.pulsar.pulsarapp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
